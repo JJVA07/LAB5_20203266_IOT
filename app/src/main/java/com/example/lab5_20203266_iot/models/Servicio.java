@@ -5,17 +5,22 @@ import java.util.Calendar;
 import java.util.UUID;
 
 public class Servicio implements Serializable {
+
     public enum Periodicidad { UNA_VEZ, MENSUAL, BIMESTRAL, TRIMESTRAL, ANUAL }
     public enum Importancia { ALTA, MEDIA, BAJA }
 
-    private String id;                 // para identificar y cancelar trabajos únicos
+    private String id;
     private String nombre;
     private double monto;
-    private long fechaVencimientoMs;   // epoch ms
+    private long fechaVencimientoMs;
     private Periodicidad periodicidad;
     private Importancia importancia;
 
-    public Servicio() {}
+    public Servicio() {
+        this.id = UUID.randomUUID().toString();
+        this.periodicidad = Periodicidad.UNA_VEZ;
+        this.importancia = Importancia.MEDIA;
+    }
 
     public Servicio(String nombre, double monto, long fechaVencimientoMs,
                     Periodicidad periodicidad, Importancia importancia) {
@@ -23,8 +28,8 @@ public class Servicio implements Serializable {
         this.nombre = nombre;
         this.monto = monto;
         this.fechaVencimientoMs = fechaVencimientoMs;
-        this.periodicidad = periodicidad;
-        this.importancia = importancia;
+        this.periodicidad = periodicidad != null ? periodicidad : Periodicidad.UNA_VEZ;
+        this.importancia = importancia != null ? importancia : Importancia.MEDIA;
     }
 
     public String getId() { return id; }

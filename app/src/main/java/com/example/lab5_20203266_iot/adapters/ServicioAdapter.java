@@ -2,6 +2,7 @@ package com.example.lab5_20203266_iot.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.widget.Toast;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,21 +55,24 @@ public class ServicioAdapter extends RecyclerView.Adapter<ServicioAdapter.ViewHo
         Servicio s = lista.get(position);
 
         h.tvNombre.setText(s.getNombre());
-        h.tvMonto.setText(String.format(Locale.getDefault(), "S/ %.2f", s.getMonto()));
+        h.tvMonto.setText(String.format(Locale.getDefault(), "Monto: S/ %.2f", s.getMonto()));
         h.tvFecha.setText("Vence: " + SDF.format(new Date(s.getFechaVencimientoMs())));
+
+        String periodicidadStr = s.getPeriodicidad() != null
+                ? formatearEnum(s.getPeriodicidad().name())
+                : "Una vez";
+        h.tvPeriodicidad.setText("Periodicidad: " + periodicidadStr);
 
         // --- BOTÓN EDITAR ---
         h.btnEditar.setOnClickListener(v -> {
             Intent i = new Intent(context, NuevoServicioActivity.class);
-            i.putExtra("SERVICIO_EDITAR", s); // enviamos el objeto completo
+            i.putExtra("SERVICIO_EDITAR", s);
             context.startActivity(i);
         });
 
         // --- BOTÓN PAGADO ---
         h.btnPagado.setOnClickListener(v -> {
             long ahora = System.currentTimeMillis();
-
-            // Guardar en historial
             PagoHistorial ph = new PagoHistorial(
                     s.getNombre(), s.getMonto(), ahora, s.getFechaVencimientoMs()
             );
@@ -76,16 +80,26 @@ public class ServicioAdapter extends RecyclerView.Adapter<ServicioAdapter.ViewHo
             hist.add(ph);
             prefs.guardarHistorial(hist);
 
-            // Próxima fecha
+            // Calcular nueva fecha
             long prox = s.proximaFechaLuegoDePagar();
             s.setFechaVencimientoMs(prox);
             prefs.guardarServicios(lista);
 
-            // Reprogramar recordatorio (o cancelar)
+            // Cancelar recordatorio viejo y crear nuevo si corresponde
             WorkManager.getInstance(context).cancelUniqueWork("recordatorio_" + s.getId());
             if (prox > 0) scheduleReminder(s);
 
+            Toast.makeText(context, "Pago registrado", Toast.LENGTH_SHORT).show();
             notifyItemChanged(h.getAdapterPosition());
+        });
+
+        // --- BOTÓN ELIMINAR ---
+        h.btnEliminar.setOnClickListener(v -> {
+            WorkManager.getInstance(context).cancelUniqueWork("recordatorio_" + s.getId());
+            lista.remove(position);
+            prefs.guardarServicios(lista);
+            notifyItemRemoved(position);
+            Toast.makeText(context, "Servicio eliminado", Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -98,9 +112,16 @@ public class ServicioAdapter extends RecyclerView.Adapter<ServicioAdapter.ViewHo
 
         long delay = Math.max(0, s.getFechaVencimientoMs() - System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1));
 
+        // ✅ aseguramos que no sea null
+        String periodicidadFormateada = s.getPeriodicidad() != null
+                ? formatearEnum(s.getPeriodicidad().name())
+                : "Una vez";
+
         Data data = new Data.Builder()
                 .putString("nombre", s.getNombre())
                 .putDouble("monto", s.getMonto())
+                .putString("periodicidad", periodicidadFormateada)
+                .putLong("fechaMs", s.getFechaVencimientoMs())
                 .putString("canal", canal)
                 .build();
 
@@ -116,20 +137,27 @@ public class ServicioAdapter extends RecyclerView.Adapter<ServicioAdapter.ViewHo
         );
     }
 
+    private String formatearEnum(String valor) {
+        String s = valor.replace("_", " ").toLowerCase(Locale.getDefault());
+        return s.substring(0, 1).toUpperCase(Locale.getDefault()) + s.substring(1);
+    }
+
     @Override
     public int getItemCount() { return lista.size(); }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvNombre, tvMonto, tvFecha;
-        Button btnEditar, btnPagado;
+        TextView tvNombre, tvMonto, tvFecha, tvPeriodicidad;
+        Button btnEditar, btnPagado, btnEliminar;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvNombre  = itemView.findViewById(R.id.tvNombre);
-            tvMonto   = itemView.findViewById(R.id.tvMonto);
-            tvFecha   = itemView.findViewById(R.id.tvFecha);
+            tvNombre = itemView.findViewById(R.id.tvNombre);
+            tvMonto = itemView.findViewById(R.id.tvMonto);
+            tvFecha = itemView.findViewById(R.id.tvFecha);
+            tvPeriodicidad = itemView.findViewById(R.id.tvPeriodicidad);
             btnEditar = itemView.findViewById(R.id.btnEditar);
             btnPagado = itemView.findViewById(R.id.btnPagado);
+            btnEliminar = itemView.findViewById(R.id.btnEliminar);
         }
     }
 }

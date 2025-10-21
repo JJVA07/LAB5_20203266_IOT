@@ -1,54 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_margin="8dp"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="4dp">
 
     <LinearLayout
         android:orientation="vertical"
-        android:padding="12dp"
+        android:padding="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <!-- Nombre del servicio -->
         <TextView
             android:id="@+id/tvNombre"
             android:textStyle="bold"
             android:textSize="18sp"
             android:textColor="@android:color/black"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
+        <!-- Monto -->
         <TextView
             android:id="@+id/tvMonto"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:textSize="15sp"
+            android:textColor="@android:color/holo_green_dark"
+            android:layout_marginTop="4dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
+        <!-- Fecha de vencimiento -->
         <TextView
             android:id="@+id/tvFecha"
             android:textSize="14sp"
             android:textColor="@android:color/darker_gray"
-            android:layout_width="wrap_content"
+            android:layout_marginTop="2dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <!-- Periodicidad -->
+        <TextView
+            android:id="@+id/tvPeriodicidad"
+            android:textSize="14sp"
+            android:textColor="@android:color/darker_gray"
+            android:layout_marginTop="2dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Botones -->
         <LinearLayout
             android:orientation="horizontal"
             android:gravity="end"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="12dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnEditar"
                 android:text="Editar"
-                android:layout_marginEnd="8dp"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_marginEnd="6dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPagado"
-                android:text="Marcar como pagado"
+                android:text="Pagado"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_marginEnd="6dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEliminar"
+                android:text="Eliminar"
+                app:backgroundTint="@android:color/holo_red_light"
+                android:textColor="@android:color/white"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>

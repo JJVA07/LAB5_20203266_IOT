@@ -61,7 +61,7 @@ public class NuevoServicioActivity extends AppCompatActivity {
         btnGuardar = findViewById(R.id.btnGuardar);
         prefs = new PrefsManager(this);
 
-        // Spinner: sin guiones
+        // Spinner: nombres formateados sin guiones
         spPeriodicidad.setAdapter(new ArrayAdapter<>(
                 this, android.R.layout.simple_spinner_dropdown_item,
                 formatearEnum(Servicio.Periodicidad.values())
@@ -81,7 +81,7 @@ public class NuevoServicioActivity extends AppCompatActivity {
             ).show();
         });
 
-        // Modo edición
+        // Si es modo edición
         servicioEditar = (Servicio) getIntent().getSerializableExtra("SERVICIO_EDITAR");
         if (servicioEditar != null) {
             precargarDatos(servicioEditar);
@@ -128,6 +128,7 @@ public class NuevoServicioActivity extends AppCompatActivity {
             return;
         }
 
+        // 🔥 Convertimos correctamente el valor seleccionado del Spinner al enum
         Servicio.Periodicidad per = Servicio.Periodicidad.values()[spPeriodicidad.getSelectedItemPosition()];
         Servicio.Importancia imp = Servicio.Importancia.values()[spImportancia.getSelectedItemPosition()];
 
@@ -167,9 +168,12 @@ public class NuevoServicioActivity extends AppCompatActivity {
         if (s.getImportancia() == Servicio.Importancia.ALTA) canal = NotificationHelper.CH_ALTA;
         else if (s.getImportancia() == Servicio.Importancia.BAJA) canal = NotificationHelper.CH_BAJA;
 
+        // ✅ Añadimos periodicidad y fecha al recordatorio
         Data data = new Data.Builder()
                 .putString("nombre", s.getNombre())
                 .putDouble("monto", s.getMonto())
+                .putString("periodicidad", s.getPeriodicidad().name())
+                .putLong("fechaMs", s.getFechaVencimientoMs())
                 .putString("canal", canal)
                 .build();
 
